@@ -42,8 +42,10 @@
     "stylesDescription": "Browse the full service menu at {businessName} — styles, filters, and pricing so you know what to book.",
     "bookingsTitle": "Book an appointment",
     "bookingsDescription": "Pick services and a time at {businessName}. Manage upcoming visits and cancellations in one place.",
+    "appointmentsTitle": "My appointments",
+    "appointmentsDescription": "View, reschedule, and manage your upcoming visits at {businessName}.",
     "accountTitle": "Your account",
-    "accountDescription": "Shortcuts to styles, bookings, and orders for {businessName} clients.",
+    "accountDescription": "Shortcuts to styles, appointments, and orders for {businessName} clients.",
     "ordersTitle": "Service orders",
     "ordersDescription": "Create and review order snapshots linked to your {businessName} account."
   },
@@ -54,6 +56,8 @@
     "contact": "Contact",
     "styles": "Styles",
     "bookings": "Bookings",
+    "makeBooking": "Make a booking",
+    "myAppointments": "My appointments",
     "account": "Account",
     "profile": "My Profile",
     "orders": "Orders",
@@ -92,7 +96,7 @@
       "bookAppointment": "Book an appointment",
       "browseStyles": "Browse styles",
       "returningClient": "Returning client",
-      "yourBookings": "Your bookings",
+      "yourBookings": "My appointments",
       "sameDayLabel": "Same-day openings",
       "sameDayBody": "Tell us your ideal time — we will confirm fast and keep you updated."
     },
@@ -151,6 +155,19 @@
     "title": "Styles menu",
     "description": "Browse our full menu of cuts and styles—filter by who it's for, see pricing at a glance, and walk in knowing exactly what to ask for."
   },
+  "accountPage": {
+    "intro": "Jump to appointments or orders. Use the avatar in the header to open account settings.",
+    "appointmentsCardSubtitle": "Schedule and manage visits",
+    "signInBlurb": "Sign in to sync your appointments and orders across devices."
+  },
+  "appointmentsPage": {
+    "eyebrow": "Appointments",
+    "title": "My appointments",
+    "intro": "Filter by day on the calendar, pay online, or update your upcoming visits."
+  },
+  "ordersPage": {
+    "signInVisitsPrompt": "Sign in to see completed visits from your appointments and your purchase orders."
+  },
   "stylesCatalog": {
     "filterAll": "All",
     "filterMen": "Men",
@@ -165,6 +182,18 @@
     "bookThisStyle": "Book this style"
   },
   "bookingsPage": {
+    "pageTitle": "Make a booking",
+    "pageIntro": "Choose a style from the menu first, then pick a time and add notes. Sign in when you are ready to finalize — your list updates as soon as you are signed in.",
+    "schedulingEyebrow": "Scheduling",
+    "formSectionTitle": "New appointment",
+    "listSectionTitle": "Your appointments",
+    "emptyNoneOnDay": "No appointments on this day.",
+    "emptyNoneYet": "No appointments yet — add your first from the left after picking a style and time.",
+    "listLoadError": "Failed to load appointments",
+    "calendarFilterTitle": "Calendar",
+    "showAllAppointments": "Show all",
+    "filterLabel": "Showing appointments for",
+    "listSignInPrompt": "Sign in to see your schedule, reschedule, or cancel appointments.",
     "reminderNote": "We can send SMS and email reminders before your visit and a thank-you with receipt details afterward, using the phone and email on your account.",
     "toastBookingCreatedHeld": "📅 Your appointment is booked — we've held this time slot.",
     "toastPaymentCompleteInDialog": "💳 Complete payment in the window to finish.",
@@ -172,15 +201,17 @@
     "toastBookingConfirmed": "Booking confirmed",
     "toastPaymentDismissedReserve": "Please make a payment to fully reserve your time slot allocation.",
     "orderSummaryTitle": "Order summary",
-    "receiptOnlineBooking": "Online booking",
+    "receiptOnlineBooking": "Online reservation",
     "receiptClient": "Client",
-    "receiptGuest": "Guest — sign in to attach this booking to your account.",
+    "receiptGuest": "Guest — sign in to attach this appointment to your account.",
     "receiptNotes": "Notes",
     "receiptTotal": "Total",
     "receiptPurchaseType": "Online purchase",
-    "removeServiceAria": "Remove service from booking",
+    "decreaseQtyAria": "Decrease quantity",
+    "increaseQtyAria": "Increase quantity",
+    "removeServiceAria": "Remove service from appointment",
     "removeServiceConfirmTitle": "Remove this service?",
-    "removeServiceConfirmDescription": "It will be taken out of your booking. You can add it again from the service list.",
+    "removeServiceConfirmDescription": "It will be taken out of your appointment. You can add it again from the service list.",
     "removeServiceConfirm": "Remove",
     "removeServiceCancel": "Keep service"
   },

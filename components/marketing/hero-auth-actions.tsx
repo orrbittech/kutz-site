@@ -45,7 +45,7 @@ export function HeroAuthActions(): React.JSX.Element {
         <Link href="/styles">
           <Button variant="primary">{t('hero.browseStyles')}</Button>
         </Link>
-        <Link href="/bookings">
+        <Link href="/appointments">
           <Button
             variant="outline"
             className="border-white text-white hover:bg-white/10 focus-visible:ring-white/40"

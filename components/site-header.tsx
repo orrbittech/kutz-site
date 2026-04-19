@@ -93,11 +93,20 @@ export function SiteHeader({ businessName = 'Kutz' }: SiteHeaderProps): React.JS
                 <Link href="/#contact" className="hover:text-muted">
                   {t('contact')}
                 </Link>
-                <Link href="/styles" className="hover:text-muted">
-                  {t('bookings')}
+                <Link href="/bookings" className="hover:text-muted">
+                  {t('makeBooking')}
+                </Link>
+                <Link href="/appointments" className="hover:text-muted">
+                  {t('myAppointments')}
                 </Link>
               </SignedOut>
               <SignedIn>
+                <Link href="/bookings" className="hover:text-muted">
+                  {t('makeBooking')}
+                </Link>
+                <Link href="/appointments" className="hover:text-muted">
+                  {t('myAppointments')}
+                </Link>
                 <Link href="/account" className="hover:text-muted">
                   {t('profile')}
                 </Link>
@@ -221,14 +230,35 @@ export function SiteHeader({ businessName = 'Kutz' }: SiteHeaderProps): React.JS
                     {t('contact')}
                   </Link>
                   <Link
-                    href="/styles"
+                    href="/bookings"
                     onClick={() => setMobileNavOpen(false)}
                     className="text-white hover:text-white/80"
                   >
-                    {t('bookings')}
+                    {t('makeBooking')}
+                  </Link>
+                  <Link
+                    href="/appointments"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="text-white hover:text-white/80"
+                  >
+                    {t('myAppointments')}
                   </Link>
                 </SignedOut>
                 <SignedIn>
+                  <Link
+                    href="/bookings"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="text-white hover:text-white/80"
+                  >
+                    {t('makeBooking')}
+                  </Link>
+                  <Link
+                    href="/appointments"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="text-white hover:text-white/80"
+                  >
+                    {t('myAppointments')}
+                  </Link>
                   <Link
                     href="/account"
                     onClick={() => setMobileNavOpen(false)}

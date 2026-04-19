@@ -33,7 +33,7 @@ export async function SiteFooter({
   const hoursDisplay = openingHours.length > 0 ? openingHours.join(' · ') : t('hoursFallback');
 
   return (
-    <footer className="border-t border-border bg-brand-brown text-brand-white">
+    <footer className="snap-start border-t border-border bg-brand-brown text-brand-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 md:flex-row md:items-start md:justify-between md:px-6">
         <div>
           <p className="text-lg font-semibold uppercase tracking-[0.3em]">{businessName}</p>

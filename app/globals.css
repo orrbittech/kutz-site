@@ -19,13 +19,6 @@
 
 html {
   scroll-padding-top: var(--header-height);
-  scroll-snap-type: y mandatory;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-snap-type: none;
-  }
 }
 
 @layer utilities {
