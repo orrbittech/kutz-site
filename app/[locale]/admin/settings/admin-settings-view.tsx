@@ -7,6 +7,8 @@ import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/cn';
+import { publicFetch } from '@/lib/api/public-fetch';
+import { queryKeys } from '@/lib/api/query-keys';
 import { safeClientErrorMessage } from '@/lib/api/safe-client-error';
 import { useAuthedFetch } from '@/lib/api/use-authed-fetch';
 import {
@@ -96,14 +98,10 @@ export function AdminSettingsView({ initial }: { initial: SiteSettingsPublic }):
   const queryClient = useQueryClient();
 
   const settingsQuery = useQuery({
-    queryKey: ['site-settings'],
+    queryKey: queryKeys.siteSettingsPublic,
     queryFn: async () => {
-      const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
-      if (!base) throw new Error('NEXT_PUBLIC_API_URL is not set');
-      const res = await fetch(`${base}/api/v1/public/site-settings`);
-      if (!res.ok) throw new Error('Failed to load settings');
-      const json: unknown = await res.json();
-      return siteSettingsPublicSchema.parse(json);
+      const raw = await publicFetch<unknown>('/public/site-settings');
+      return siteSettingsPublicSchema.parse(raw);
     },
     initialData: initial,
   });
@@ -121,7 +119,7 @@ export function AdminSettingsView({ initial }: { initial: SiteSettingsPublic }):
       return siteSettingsPublicSchema.parse(raw);
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['site-settings'] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.siteSettingsPublic });
     },
   });
 

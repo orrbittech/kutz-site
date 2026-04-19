@@ -9,6 +9,7 @@ export function AppProviders({ children }: { children: ReactNode }): React.JSX.E
   const [client] = useState(
     () =>
       new QueryClient({
+        // Prod-minded client cache: 20s stale, no refetch on focus, limited query retries (mutations no retry).
         defaultOptions: {
           queries: {
             staleTime: 20_000,

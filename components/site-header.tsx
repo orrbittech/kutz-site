@@ -3,11 +3,10 @@
 import { SignedIn, SignedOut, SignOutButton, useAuth, useClerk, useUser } from '@clerk/nextjs';
 import { Menu, X } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/cn';
-import { useUiStore } from '@/stores/ui-store';
 
 type SiteHeaderProps = {
   businessName?: string;
@@ -54,7 +53,8 @@ function ProfileAvatarButton({
 }
 
 export function SiteHeader({ businessName = 'Kutz' }: SiteHeaderProps): React.JSX.Element {
-  const { mobileNavOpen, setMobileNavOpen, toggleMobileNav } = useUiStore();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const toggleMobileNav = (): void => setMobileNavOpen((o) => !o);
   const { isLoaded: authLoaded } = useAuth();
   const locale = useLocale();
   const t = useTranslations('nav');
