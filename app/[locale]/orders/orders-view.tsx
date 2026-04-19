@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -49,6 +50,7 @@ function OrdersListSkeleton(): React.JSX.Element {
 }
 
 export function OrdersView(): React.JSX.Element {
+  const tOrders = useTranslations('ordersPage');
   const { isSignedIn, isLoaded } = useAuth();
   const { redirectToSignIn } = useClerk();
   const fetchAuthed = useAuthedFetch();
@@ -88,13 +90,6 @@ export function OrdersView(): React.JSX.Element {
       .filter((b) => b.status === BookingStatus.SERVICED)
       .sort((a, b) => parseISO(b.scheduledAt).getTime() - parseISO(a.scheduledAt).getTime());
   }, [bookingsQuery.data]);
-
-  function serviceLabel(row: (typeof servicedVisits)[number]): string {
-    if (row.styles?.length) {
-      return row.styles.map((s) => s.name).join(' · ');
-    }
-    return row.style?.name ?? row.styleName ?? '—';
-  }
 
   const createMutation = useMutation({
     mutationFn: async (input: z.infer<typeof createOrderSchema>) => {
@@ -200,7 +195,7 @@ export function OrdersView(): React.JSX.Element {
       <div className="space-y-4">
         {isLoaded && !isSignedIn ? (
           <Card className="text-sm text-foreground/80">
-            Sign in to see completed visits from your bookings and your purchase orders.
+            {tOrders('signInVisitsPrompt')}
           </Card>
         ) : null}
         <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-foreground/70">Completed visits</h2>
@@ -220,16 +215,35 @@ export function OrdersView(): React.JSX.Element {
         ) : null}
         {isSignedIn && servicedVisits.length > 0 ? (
           <ul className="space-y-3">
-            {servicedVisits.map((row) => (
-              <Card key={row.id} className="space-y-1 p-4">
-                <p className="text-sm font-semibold text-foreground">{serviceLabel(row)}</p>
-                <p className="text-xs text-foreground/75">
-                  {format(parseISO(row.scheduledAt), 'EEEE, MMM d, yyyy')}
-                  <span className="text-foreground/45"> · </span>
-                  {format(parseISO(row.scheduledAt), 'p')}
-                </p>
-              </Card>
-            ))}
+            {servicedVisits.map((row) => {
+              const styleLines =
+                row.styles?.map((s) =>
+                  (s.quantity ?? 1) > 1 ? `${s.name} × ${s.quantity}` : s.name,
+                ) ?? [];
+              const displayLines =
+                styleLines.length > 0
+                  ? styleLines
+                  : [row.style?.name ?? row.styleName ?? '—'];
+              return (
+                <Card key={row.id} className="space-y-2 p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-foreground/55">
+                    {row.bookingCode}
+                  </p>
+                  <ul className="space-y-1">
+                    {displayLines.map((text, i) => (
+                      <li key={`${row.id}-line-${i}`} className="text-sm font-semibold text-foreground">
+                        {text}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-xs text-foreground/75">
+                    {format(parseISO(row.scheduledAt), 'EEEE, MMM d, yyyy')}
+                    <span className="text-foreground/45"> · </span>
+                    {format(parseISO(row.scheduledAt), 'p')}
+                  </p>
+                </Card>
+              );
+            })}
           </ul>
         ) : null}
 
