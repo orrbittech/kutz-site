@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { AppChrome } from '@/components/app-chrome';
 import { getLocalePageMetadata } from '@/lib/server/locale-page-metadata';
+import { getStylesListPublic } from '@/lib/server/get-styles-public';
 import { StylesView } from './styles-view';
 
 export async function generateMetadata({
@@ -14,6 +15,7 @@ export async function generateMetadata({
 
 export default async function StylesPage(): Promise<React.JSX.Element> {
   const t = await getTranslations('stylesPage');
+  const initialStyles = await getStylesListPublic();
   return (
     <AppChrome>
       <main
@@ -26,7 +28,7 @@ export default async function StylesPage(): Promise<React.JSX.Element> {
           <h1 className="mt-2 text-balance text-3xl font-semibold uppercase tracking-tight md:text-4xl">{t('title')}</h1>
           <p className="mt-3 max-w-2xl text-sm text-foreground/75">{t('description')}</p>
         </div>
-        <StylesView />
+        <StylesView initialStyles={initialStyles} />
       </main>
     </AppChrome>
   );

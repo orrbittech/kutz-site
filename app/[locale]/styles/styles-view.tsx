@@ -15,7 +15,14 @@ import { styleListSchema, type StyleResponse } from '@/lib/zod/style';
 
 type CategoryFilter = 'all' | StyleResponse['category'];
 
-export function StylesView(): React.JSX.Element {
+const STYLES_STALE_MS = 120_000;
+
+export type StylesViewProps = {
+  /** From RSC fetch; when set, first paint skips the BFF. Omit or null to load via client only. */
+  initialStyles?: StyleResponse[] | null;
+};
+
+export function StylesView({ initialStyles }: StylesViewProps): React.JSX.Element {
   const { locale } = useParams<{ locale: string }>();
   const t = useTranslations('stylesCatalog');
   const [category, setCategory] = useState<CategoryFilter>('all');
@@ -44,6 +51,8 @@ export function StylesView(): React.JSX.Element {
       const raw = await publicFetch<unknown>('/styles');
       return styleListSchema.parse(raw);
     },
+    staleTime: STYLES_STALE_MS,
+    ...(initialStyles != null ? { initialData: initialStyles } : {}),
   });
 
   const items = useMemo(() => query.data ?? [], [query.data]);

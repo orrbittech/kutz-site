@@ -15,12 +15,13 @@ import {
   startOfMonth,
   startOfWeek,
 } from 'date-fns';
+import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ChevronDown, ClipboardCopy } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import {
   AlertDialog,
@@ -50,8 +51,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { BookingOrderSummaryCard } from '@/components/bookings/booking-order-summary-card';
 import { cn } from '@/lib/cn';
-import { BookingPaymentCheckout } from '@/components/bookings/booking-payment-checkout';
 import { bookingNeedsCardPayment } from '@/lib/booking-payment';
 import { Link, useRouter } from '@/i18n/navigation';
 import { queryKeys } from '@/lib/api/query-keys';
@@ -79,6 +80,12 @@ import {
 } from '@/lib/zod/booking';
 import { styleListSchema, type StyleResponse } from '@/lib/zod/style';
 import { BookingPaymentStatus, BookingStatus } from '@/lib/constants/enums';
+
+const BookingPaymentCheckout = dynamic(
+  () =>
+    import('@/components/bookings/booking-payment-checkout').then((m) => m.BookingPaymentCheckout),
+  { ssr: false },
+);
 
 function formatStylePriceZar(cents: number | null): string {
   if (cents == null) {
@@ -178,6 +185,19 @@ function serviceTitlePaidClass(row: BookingResponse): string {
   return '';
 }
 
+/** Second success toast so it appears after the first (readable stack). */
+function toastSuccessAfterFrame(message: string, delayMs = 320): void {
+  if (typeof window === 'undefined') {
+    toast.success(message);
+    return;
+  }
+  window.requestAnimationFrame(() => {
+    window.setTimeout(() => {
+      toast.success(message);
+    }, delayMs);
+  });
+}
+
 /**
  * Priority when multiple bookings share a day: PENDING → CONFIRMED → CANCELLED → SERVICED.
  * Calendar cells only (unselected); selected day uses primary border only — no second ring.
@@ -213,6 +233,7 @@ export function BookingsView(): React.JSX.Element {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
+  const [pendingRemoveStyleId, setPendingRemoveStyleId] = useState<string | null>(null);
   const [selectedStyleIds, setSelectedStyleIds] = useState<string[]>([]);
   const [paymentSession, setPaymentSession] = useState<{
     bookingId: string;
@@ -221,6 +242,16 @@ export function BookingsView(): React.JSX.Element {
     serviceSummary: string;
     scheduledAtIso: string;
   } | null>(null);
+  /** When true, closing the payment dialog must not show the "please pay" dismiss toast (paid or Stripe return). */
+  const suppressPaymentDismissToastRef = useRef(false);
+  /** Prevents duplicate dismiss handling when both Radix `onOpenChange` and Cancel run in one close. */
+  const paymentDialogDismissGuardRef = useRef(false);
+
+  useEffect(() => {
+    if (paymentSession !== null) {
+      suppressPaymentDismissToastRef.current = false;
+    }
+  }, [paymentSession]);
 
   const siteSettingsQuery = useQuery({
     queryKey: queryKeys.siteSettingsPublic,
@@ -241,6 +272,15 @@ export function BookingsView(): React.JSX.Element {
     resolver: zodResolver(bookingFormSchema),
     defaultValues: { scheduledAt: defaultScheduledIso, notes: '' },
   });
+
+  const watchedScheduledAt = useWatch({ control: form.control, name: 'scheduledAt' }) ?? '';
+  const watchedNotes = useWatch({ control: form.control, name: 'notes' }) ?? '';
+
+  const purchaseClientDisplay = useMemo(() => {
+    if (!userLoaded || !isLoaded) return '…';
+    if (!isSignedIn) return '';
+    return user?.fullName || user?.primaryEmailAddress?.emailAddress || 'You';
+  }, [userLoaded, isLoaded, isSignedIn, user]);
 
   const settingsScheduleSeeded = useRef(false);
   useEffect(() => {
@@ -442,13 +482,15 @@ export function BookingsView(): React.JSX.Element {
             serviceSummary: summary,
             scheduledAtIso: created.scheduledAt,
           });
-          toast.success('Booking reserved — complete payment in the dialog.');
+          toast.success(t('toastBookingCreatedHeld'));
+          toastSuccessAfterFrame(t('toastPaymentCompleteInDialog'));
         } catch (err: unknown) {
           toast.error(`❌ ${safeClientErrorMessage(err, 'Could not start payment')}`);
-          toast.success('Booking reserved — use Pay now on the booking when you are ready.');
+          toast.success(t('toastBookingCreatedHeld'));
+          toastSuccessAfterFrame(t('toastPaymentUsePayNow'));
         }
       } else {
-        toast.success('✅ Booking confirmed');
+        toast.success(t('toastBookingConfirmed'));
       }
     },
     onError: (err: unknown) => {
@@ -616,6 +658,7 @@ export function BookingsView(): React.JSX.Element {
         queryClient.invalidateQueries({ queryKey: queryKeys.bookings }),
         queryClient.invalidateQueries({ queryKey: queryKeys.bookingsOccupancyPrefix }),
       ]);
+      suppressPaymentDismissToastRef.current = true;
       setPaymentSession(null);
       const next = new URL(window.location.href);
       next.searchParams.delete('payment_intent');
@@ -632,6 +675,20 @@ export function BookingsView(): React.JSX.Element {
     fetchAuthed,
   ]);
 
+  function confirmRemoveServiceFromCart(): void {
+    if (pendingRemoveStyleId == null) return;
+    const removeId = pendingRemoveStyleId;
+    setPendingRemoveStyleId(null);
+    const nextIds = selectedStyleIds.filter((id) => id !== removeId);
+    setSelectedStyleIds(nextIds);
+    const urlSid = searchParams.get('styleId');
+    if (urlSid && !nextIds.includes(urlSid) && typeof window !== 'undefined') {
+      const next = new URL(window.location.href);
+      next.searchParams.delete('styleId');
+      router.replace(`${next.pathname}${next.search}`);
+    }
+  }
+
   async function handlePayBooking(row: BookingResponse): Promise<void> {
     try {
       const pi = await paymentIntentMutation.mutateAsync(row.id);
@@ -647,6 +704,23 @@ export function BookingsView(): React.JSX.Element {
       toast.success('Complete payment in the dialog.');
     } catch (err: unknown) {
       toast.error(`❌ ${safeClientErrorMessage(err, 'Could not start payment')}`);
+    }
+  }
+
+  function handlePaymentDialogOpenChange(open: boolean): void {
+    if (open) return;
+    if (paymentDialogDismissGuardRef.current) return;
+    paymentDialogDismissGuardRef.current = true;
+    try {
+      if (!suppressPaymentDismissToastRef.current) {
+        toast(t('toastPaymentDismissedReserve'));
+      }
+      suppressPaymentDismissToastRef.current = false;
+      setPaymentSession(null);
+    } finally {
+      queueMicrotask(() => {
+        paymentDialogDismissGuardRef.current = false;
+      });
     }
   }
 
@@ -675,9 +749,9 @@ export function BookingsView(): React.JSX.Element {
   return (
     <>
       <div className="flex min-w-0 flex-col gap-8">
-        <div className="grid min-w-0 gap-8 lg:grid-cols-2 lg:items-stretch">
-          <div className="min-w-0 space-y-8">
-            <Card>
+        <div className="grid min-w-0 gap-8 lg:grid-cols-2 lg:items-stretch lg:min-h-0 lg:max-h-[calc(100dvh-var(--header-height)-9rem)] lg:grid-rows-[minmax(0,1fr)]">
+          <div className="flex min-h-0 min-w-0 flex-col lg:h-full lg:min-h-0 lg:overflow-y-auto lg:pr-1 scroll-smooth">
+            <Card className="flex h-full min-h-0 flex-col">
             <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-foreground/70">New booking</h2>
             <p className="mt-2 max-w-prose text-xs leading-relaxed text-foreground/70">{t('reminderNote')}</p>
 
@@ -811,7 +885,7 @@ export function BookingsView(): React.JSX.Element {
                   </label>
                   <textarea
                     id="notes"
-                    rows={4}
+                    rows={8}
                     className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                     placeholder="Allergies, preferred barber, parking needs…"
                     {...form.register('notes')}
@@ -840,110 +914,126 @@ export function BookingsView(): React.JSX.Element {
 
           </div>
 
-          <div className="space-y-6">
-            <Card className="space-y-4">
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-foreground/70">Calendar</h2>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="text-xs"
-                  disabled={occupancyQuery.isPending}
-                  onClick={() => setCursor((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1))}
-                >
-                  Prev
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="text-xs"
-                  disabled={occupancyQuery.isPending}
-                  onClick={() => setCursor((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1))}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-            <p className="text-center text-sm font-semibold text-foreground">{monthLabel}</p>
-            {occupancyQuery.isPending ? (
-              <>
-                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-wide text-foreground/50">
-                  {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((d) => (
-                    <div key={d}>{d}</div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7 gap-1">
-                  {Array.from({ length: 35 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="flex min-h-[2.25rem] animate-pulse items-center justify-center rounded-lg border border-border/40 bg-brand-cream/50"
-                    >
-                      <span className="h-3 w-4 rounded bg-brand-cream/70" />
-                    </div>
-                  ))}
-                </div>
-              </>
+          <div className="flex min-h-0 min-w-0 flex-col lg:h-full lg:min-h-0 lg:overflow-y-auto lg:pr-1 scroll-smooth">
+            {orderedValidStyleIds.length > 0 ? (
+              <BookingOrderSummaryCard
+                orderedValidStyleIds={orderedValidStyleIds}
+                sortedStyles={sortedStyles}
+                scheduledAtIso={watchedScheduledAt}
+                notes={watchedNotes}
+                businessName={bookingSchedule.businessName}
+                clientDisplayName={purchaseClientDisplay}
+                clientAvatarUrl={
+                  userLoaded && isLoaded && isSignedIn ? user?.imageUrl : undefined
+                }
+                onRequestRemoveStyle={(styleId) => setPendingRemoveStyleId(styleId)}
+                className="min-h-0 flex-1"
+              />
             ) : (
-              <>
-                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-wide text-foreground/50">
-                  {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((d) => (
-                    <div key={d}>{d}</div>
-                  ))}
+              <Card className="flex h-full min-h-0 flex-col space-y-4">
+                <div className="flex items-center justify-between gap-2">
+                  <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-foreground/70">Calendar</h2>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="text-xs"
+                      disabled={occupancyQuery.isPending}
+                      onClick={() => setCursor((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1))}
+                    >
+                      Prev
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="text-xs"
+                      disabled={occupancyQuery.isPending}
+                      onClick={() => setCursor((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1))}
+                    >
+                      Next
+                    </Button>
+                  </div>
                 </div>
-                <div className="grid grid-cols-7 gap-1">
-                  {calendarDays.map((day) => {
-                    const key = format(day, 'yyyy-MM-dd');
-                    const hasShopBooking = occupancyByDay.get(key) ?? false;
-                    const myList = bookingsByDay.get(key);
-                    const myCount = myList?.length ?? 0;
-                    const dayAccent = calendarDayAccentFromBookings(myList);
-                    const showDot = hasShopBooking || myCount > 0;
-                    const selected = selectedDay ? isSameDay(day, selectedDay) : false;
-                    const inMonth = isSameMonth(day, cursor);
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => setSelectedDay(day)}
-                        className={cn(
-                          'relative flex min-h-[2.25rem] flex-col items-center justify-center rounded-lg border-2 text-xs transition',
-                          selected
-                            ? 'border-primary bg-primary/15 font-semibold text-foreground'
-                            : cn(
-                                'bg-card text-foreground/80 hover:border-primary/40',
-                                dayAccent?.borderUnselected ?? 'border-border/60',
-                              ),
-                          !inMonth && 'opacity-40',
-                        )}
-                      >
-                        <span>{format(day, 'd')}</span>
-                        {showDot ? (
-                          <span className="mt-0.5 h-1 w-1 rounded-full bg-primary" aria-hidden />
-                        ) : null}
-                      </button>
-                    );
-                  })}
+                <p className="text-center text-sm font-semibold text-foreground">{monthLabel}</p>
+                {occupancyQuery.isPending ? (
+                  <>
+                    <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-wide text-foreground/50">
+                      {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((d) => (
+                        <div key={d}>{d}</div>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-1">
+                      {Array.from({ length: 35 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="flex min-h-[2.25rem] animate-pulse items-center justify-center rounded-lg border border-border/40 bg-brand-cream/50"
+                        >
+                          <span className="h-3 w-4 rounded bg-brand-cream/70" />
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-wide text-foreground/50">
+                      {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((d) => (
+                        <div key={d}>{d}</div>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-1">
+                      {calendarDays.map((day) => {
+                        const key = format(day, 'yyyy-MM-dd');
+                        const hasShopBooking = occupancyByDay.get(key) ?? false;
+                        const myList = bookingsByDay.get(key);
+                        const myCount = myList?.length ?? 0;
+                        const dayAccent = calendarDayAccentFromBookings(myList);
+                        const showDot = hasShopBooking || myCount > 0;
+                        const selected = selectedDay ? isSameDay(day, selectedDay) : false;
+                        const inMonth = isSameMonth(day, cursor);
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => setSelectedDay(day)}
+                            className={cn(
+                              'relative flex min-h-[2.25rem] flex-col items-center justify-center rounded-lg border-2 text-xs transition',
+                              selected
+                                ? 'border-primary bg-primary/15 font-semibold text-foreground'
+                                : cn(
+                                    'bg-card text-foreground/80 hover:border-primary/40',
+                                    dayAccent?.borderUnselected ?? 'border-border/60',
+                                  ),
+                              !inMonth && 'opacity-40',
+                            )}
+                          >
+                            <span>{format(day, 'd')}</span>
+                            {showDot ? (
+                              <span className="mt-0.5 h-1 w-1 rounded-full bg-primary" aria-hidden />
+                            ) : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="text-xs"
+                    disabled={occupancyQuery.isPending}
+                    onClick={() => setSelectedDay(null)}
+                  >
+                    Show all
+                  </Button>
+                  {selectedDay ? (
+                    <p className="text-xs text-foreground/70">
+                      Filter: <span className="font-semibold text-foreground">{format(selectedDay, 'PPP')}</span>
+                    </p>
+                  ) : null}
                 </div>
-              </>
+              </Card>
             )}
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                className="text-xs"
-                disabled={occupancyQuery.isPending}
-                onClick={() => setSelectedDay(null)}
-              >
-                Show all
-              </Button>
-              {selectedDay ? (
-                <p className="text-xs text-foreground/70">
-                  Filter: <span className="font-semibold text-foreground">{format(selectedDay, 'PPP')}</span>
-                </p>
-              ) : null}
-            </div>
-          </Card>
         </div>
         </div>
 
@@ -1126,12 +1216,7 @@ export function BookingsView(): React.JSX.Element {
         </div>
       </div>
 
-      <Dialog
-        open={paymentSession !== null}
-        onOpenChange={(open) => {
-          if (!open) setPaymentSession(null);
-        }}
-      >
+      <Dialog open={paymentSession !== null} onOpenChange={handlePaymentDialogOpenChange}>
         <DialogContent className="flex max-h-[min(92dvh,44rem)] w-[min(100%-1.5rem,56rem)] max-w-[min(100%-1.5rem,56rem)] flex-col overflow-hidden border-border bg-background p-0">
           <DialogHeader>
             <DialogTitle>Complete payment</DialogTitle>
@@ -1215,6 +1300,7 @@ export function BookingsView(): React.JSX.Element {
                           await new Promise((r) => setTimeout(r, 400));
                         }
                       }
+                      suppressPaymentDismissToastRef.current = true;
                       setPaymentSession(null);
                       void Promise.all([
                         queryClient.invalidateQueries({ queryKey: queryKeys.bookings }),
@@ -1224,7 +1310,7 @@ export function BookingsView(): React.JSX.Element {
                       ]);
                       toast.success('Payment received');
                     }}
-                    onCancel={() => setPaymentSession(null)}
+                    onCancel={() => handlePaymentDialogOpenChange(false)}
                   />
                 </div>
               </div>
@@ -1263,6 +1349,32 @@ export function BookingsView(): React.JSX.Element {
                 }}
               >
                 {cancelMutation.isPending ? 'Cancelling…' : 'Yes, cancel'}
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={pendingRemoveStyleId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingRemoveStyleId(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('removeServiceConfirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('removeServiceConfirmDescription')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button type="button" variant="outline" className="text-xs">
+                {t('removeServiceCancel')}
+              </Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button type="button" variant="primary" className="text-xs" onClick={confirmRemoveServiceFromCart}>
+                {t('removeServiceConfirm')}
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>

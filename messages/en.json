@@ -2,6 +2,27 @@
   "common": {
     "skipToMain": "Skip to main content"
   },
+  "errorPage": {
+    "titleDefault": "Something went wrong",
+    "titleNetwork": "Connection problem",
+    "titleNotFound": "Not found",
+    "titleAuth": "Sign-in required",
+    "titleServer": "Server error",
+    "descDefault": "An unexpected error occurred. You can try again or go back to the previous page.",
+    "descNetwork": "We could not reach the server. Check your network and try again.",
+    "descNotFound": "The page or resource could not be found.",
+    "descAuth": "You may need to sign in to continue.",
+    "descServer": "The server had a problem. Please try again in a moment.",
+    "copyDetails": "Copy error details",
+    "copiedToast": "Error details copied",
+    "copyFailed": "Could not copy automatically — select the text below and copy manually.",
+    "tryAgain": "Try again",
+    "footerHeading": "Send to a developer",
+    "emailDeveloper": "Email developer",
+    "whatsappDeveloper": "Message on WhatsApp",
+    "footerFallback": "Copy the error details above and send them to your developer.",
+    "reportSubject": "App error report"
+  },
   "meta": {
     "title": "{businessName} — Professional barbershop & grooming | Book online",
     "description": "{businessName} is a professional barbershop offering precision cuts, beard work, and men’s grooming with online booking and clear pricing.{suffix}",
@@ -107,8 +128,8 @@
     },
     "testimonial": {
       "label": "Testimonial",
-      "quote": "“Fast, precise, and the vibe is right. I book on my phone and walk out looking camera-ready.”",
-      "attribution": "— Alex R., regular since 2024"
+      "quote": "“Fast, precise, and the vibe is right. I book on the phone and walk out looking camera-ready.”",
+      "attribution": "— Brandon Nkawu, regular since 1998"
     },
     "team": {
       "label": "Team",
@@ -144,7 +165,24 @@
     "bookThisStyle": "Book this style"
   },
   "bookingsPage": {
-    "reminderNote": "We can send SMS and email reminders before your visit and a thank-you with receipt details afterward, using the phone and email on your account."
+    "reminderNote": "We can send SMS and email reminders before your visit and a thank-you with receipt details afterward, using the phone and email on your account.",
+    "toastBookingCreatedHeld": "📅 Your appointment is booked — we've held this time slot.",
+    "toastPaymentCompleteInDialog": "💳 Complete payment in the window to finish.",
+    "toastPaymentUsePayNow": "💳 or 💵 Pay online with Pay now on your booking, or settle in person at the shop.",
+    "toastBookingConfirmed": "Booking confirmed",
+    "toastPaymentDismissedReserve": "Please make a payment to fully reserve your time slot allocation.",
+    "orderSummaryTitle": "Order summary",
+    "receiptOnlineBooking": "Online booking",
+    "receiptClient": "Client",
+    "receiptGuest": "Guest — sign in to attach this booking to your account.",
+    "receiptNotes": "Notes",
+    "receiptTotal": "Total",
+    "receiptPurchaseType": "Online purchase",
+    "removeServiceAria": "Remove service from booking",
+    "removeServiceConfirmTitle": "Remove this service?",
+    "removeServiceConfirmDescription": "It will be taken out of your booking. You can add it again from the service list.",
+    "removeServiceConfirm": "Remove",
+    "removeServiceCancel": "Keep service"
   },
   "adminSettings": {
     "title": "Site settings",

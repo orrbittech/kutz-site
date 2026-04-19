@@ -1,10 +1,21 @@
 import './globals.css';
+import { Urbanist } from 'next/font/google';
 
-/** Root pass-through — real document lives in `[locale]/layout.tsx` (next-intl). */
+const urbanist = Urbanist({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+/** Root document shell — required by Next.js; locale UI lives under `[locale]/layout.tsx`. */
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>): React.ReactNode {
-  return children;
+  return (
+    <html lang="en">
+      <body className={`${urbanist.variable} font-sans min-h-screen`}>{children}</body>
+    </html>
+  );
 }
