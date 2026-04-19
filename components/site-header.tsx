@@ -93,17 +93,11 @@ export function SiteHeader({ businessName = 'Kutz' }: SiteHeaderProps): React.JS
                 <Link href="/#contact" className="hover:text-muted">
                   {t('contact')}
                 </Link>
-                <Link href="/bookings" className="hover:text-muted">
-                  {t('makeBooking')}
-                </Link>
                 <Link href="/appointments" className="hover:text-muted">
                   {t('myAppointments')}
                 </Link>
               </SignedOut>
               <SignedIn>
-                <Link href="/bookings" className="hover:text-muted">
-                  {t('makeBooking')}
-                </Link>
                 <Link href="/appointments" className="hover:text-muted">
                   {t('myAppointments')}
                 </Link>
@@ -230,13 +224,6 @@ export function SiteHeader({ businessName = 'Kutz' }: SiteHeaderProps): React.JS
                     {t('contact')}
                   </Link>
                   <Link
-                    href="/bookings"
-                    onClick={() => setMobileNavOpen(false)}
-                    className="text-white hover:text-white/80"
-                  >
-                    {t('makeBooking')}
-                  </Link>
-                  <Link
                     href="/appointments"
                     onClick={() => setMobileNavOpen(false)}
                     className="text-white hover:text-white/80"
@@ -245,13 +232,6 @@ export function SiteHeader({ businessName = 'Kutz' }: SiteHeaderProps): React.JS
                   </Link>
                 </SignedOut>
                 <SignedIn>
-                  <Link
-                    href="/bookings"
-                    onClick={() => setMobileNavOpen(false)}
-                    className="text-white hover:text-white/80"
-                  >
-                    {t('makeBooking')}
-                  </Link>
                   <Link
                     href="/appointments"
                     onClick={() => setMobileNavOpen(false)}

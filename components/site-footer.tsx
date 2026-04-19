@@ -34,44 +34,50 @@ export async function SiteFooter({
 
   return (
     <footer className="snap-start border-t border-border bg-brand-brown text-brand-white">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 md:flex-row md:items-start md:justify-between md:px-6">
-        <div>
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-12 text-center md:flex-row md:items-start md:justify-between md:text-left md:px-6">
+        <div className="max-md:w-full">
           <p className="text-lg font-semibold uppercase tracking-[0.3em]">{businessName}</p>
-          <p className="mt-3 max-w-sm text-sm text-white/75">{t('tagline')}</p>
+          <p className="mx-auto mt-3 max-w-sm text-sm text-white/75 md:mx-0">{t('tagline')}</p>
         </div>
-        <div className="grid grid-cols-1 gap-8 text-sm sm:grid-cols-2 md:max-w-xl md:grid-cols-2">
+        <div className="grid w-full max-w-xl grid-cols-1 gap-8 text-sm sm:grid-cols-2 md:max-w-xl md:grid-cols-2">
           <div className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">{t('about')}</p>
             {phone ? (
-              <p className="flex items-center gap-2">
+              <p className="flex items-center justify-center gap-2 md:justify-start">
                 <Phone className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
                 <span className="text-white/90">{t('contactLabel', { phone })}</span>
               </p>
             ) : null}
             {publicEmail ? (
-              <p className="flex items-center gap-2">
+              <p className="flex items-center justify-center gap-2 md:justify-start">
                 <Mail className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
                 <a href={`mailto:${publicEmail}`} className="text-white/90 underline underline-offset-2 hover:text-white">
                   {publicEmail}
                 </a>
               </p>
             ) : null}
-            <p className="flex items-start gap-2">
+            <p className="flex items-start justify-center gap-2 md:justify-start">
               <Clock className="mt-0.5 h-4 w-4 shrink-0 opacity-80" aria-hidden />
-              <span className="text-white/90">{hoursDisplay}</span>
+              <span className="max-w-md text-balance text-white/90">{hoursDisplay}</span>
             </p>
-            <p className="flex items-start gap-2">
+            <p className="flex items-start justify-center gap-2 md:justify-start">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 opacity-80" aria-hidden />
-              <span className="text-white/90">{addressLine}</span>
+              <span className="max-w-md text-balance text-white/90">{addressLine}</span>
             </p>
           </div>
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">{t('accounts')}</p>
-            <Link href="/sign-up" className="flex items-center gap-2 hover:text-white/90">
+            <Link
+              href="/sign-up"
+              className="flex items-center justify-center gap-2 hover:text-white/90 md:justify-start"
+            >
               <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
               {t('joinBrand', { businessName })}
             </Link>
-            <Link href="/account" className="flex items-center gap-2 hover:text-white/90">
+            <Link
+              href="/account"
+              className="flex items-center justify-center gap-2 hover:text-white/90 md:justify-start"
+            >
               <UserRound className="h-4 w-4 shrink-0" aria-hidden />
               {t('myAccount')}
             </Link>
