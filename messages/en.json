@@ -1,0 +1,179 @@
+{
+  "common": {
+    "skipToMain": "Skip to main content"
+  },
+  "meta": {
+    "title": "{businessName} — Professional barbershop & grooming | Book online",
+    "description": "{businessName} is a professional barbershop offering precision cuts, beard work, and men’s grooming with online booking and clear pricing.{suffix}",
+    "suffixEmpty": "",
+    "suffixCity": " Serving {city}{region}.",
+    "keywords": [
+      "professional barber",
+      "barbershop",
+      "men’s grooming",
+      "haircut booking",
+      "beard trim",
+      "barber near me"
+    ]
+  },
+  "pageMeta": {
+    "stylesTitle": "Styles & pricing",
+    "stylesDescription": "Browse the full service menu at {businessName} — styles, filters, and pricing so you know what to book.",
+    "bookingsTitle": "Book an appointment",
+    "bookingsDescription": "Pick services and a time at {businessName}. Manage upcoming visits and cancellations in one place.",
+    "accountTitle": "Your account",
+    "accountDescription": "Shortcuts to styles, bookings, and orders for {businessName} clients.",
+    "ordersTitle": "Service orders",
+    "ordersDescription": "Create and review order snapshots linked to your {businessName} account."
+  },
+  "nav": {
+    "services": "Services",
+    "gallery": "Gallery",
+    "team": "Team",
+    "contact": "Contact",
+    "styles": "Styles",
+    "bookings": "Bookings",
+    "account": "Account",
+    "profile": "My Profile",
+    "orders": "Orders",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "bookNow": "Book now",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "createAccount": "Create account"
+  },
+  "footer": {
+    "tagline": "Precision cuts, relaxed atmosphere, and service that respects your time — your go-to barber in your neighborhood.",
+    "about": "About",
+    "contactLabel": "Contact: {phone}",
+    "hoursFallback": "See booking page for availability",
+    "addressFallback": "Visit us soon — hours online.",
+    "accounts": "Accounts",
+    "joinBrand": "Join {businessName}",
+    "myAccount": "My Account",
+    "copyrightBusiness": "© {year} {businessName}. All rights reserved.",
+    "platformRights": "Platform software and related intellectual property are built and owned by",
+    "vendorName": "Orrbit Technologies",
+    "authorName": "Brandon N Nkawu",
+    "authorCredit": "Author: {authorName}.",
+    "platformContactLabel": "Platform contact",
+    "orrbitSiteDisplay": "orrbit.co.za",
+    "linkedinProfileAria": "Brandon N Nkawu on LinkedIn",
+    "orrbitPhoneDisplay": "073 959 0288",
+    "linkedinLabel": "LinkedIn"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Barber in your neighborhood",
+      "titleSuffix": " — barber in your neighborhood",
+      "body": "Searching for a barber near me? Book online at {businessName}, arrive on time, and leave with a cut shaped for your texture, lifestyle, and calendar.",
+      "bookAppointment": "Book an appointment",
+      "browseStyles": "Browse styles",
+      "returningClient": "Returning client",
+      "yourBookings": "Your bookings",
+      "sameDayLabel": "Same-day openings",
+      "sameDayBody": "Tell us your ideal time — we will confirm fast and keep you updated."
+    },
+    "services": {
+      "menuLabel": "Menu",
+      "heading": "Services built for real life",
+      "subheading": "Transparent pricing, thoughtful timing, and finishes that hold up through work weeks and weekends.",
+      "featuredLabel": "Featured services",
+      "classicCut": {
+        "name": "Classic cut & finish",
+        "description": "Consultation, precision cut, and finish — tailored to your hair texture and parting. Includes a quick style check before you head out."
+      },
+      "skinFade": {
+        "name": "Skin fade",
+        "description": "Clean taper with a sharp fade and detailed lineup. Ideal when you want definition that stays crisp for weeks."
+      },
+      "beardSculpt": {
+        "name": "Beard sculpt",
+        "description": "Shape, trim, and balance — hot towel optional. We map the beard to your jawline and maintenance routine."
+      },
+      "hotTowel": {
+        "name": "Hot towel add-on",
+        "description": "Relaxing prep before a trim or finish. Great if you want extra comfort or have sensitive skin."
+      }
+    },
+    "gallery": {
+      "label": "Gallery",
+      "heading": "Texture & tone",
+      "body": "A snapshot of recent work — crisp edges, soft blends, and finishes tailored to each client.",
+      "loadError": "We couldn't load the gallery.",
+      "errorUnknown": "Something went wrong.",
+      "empty": "No gallery images are listed yet."
+    },
+    "testimonial": {
+      "label": "Testimonial",
+      "quote": "“Fast, precise, and the vibe is right. I book on my phone and walk out looking camera-ready.”",
+      "attribution": "— Alex R., regular since 2024"
+    },
+    "team": {
+      "label": "Team",
+      "heading": "People behind the chair",
+      "body": "Experienced stylists who listen first — then shape a cut that fits your routine.",
+      "loadError": "We couldn't load the team list.",
+      "errorUnknown": "Something went wrong.",
+      "empty": "No team members are listed yet."
+    },
+    "contact": {
+      "label": "Visit",
+      "heading": "Ready when you are",
+      "body": "Pick a style from our menu, then choose a time — sign in when you are ready to confirm. Browse the catalog anytime after you create an account.",
+      "getStarted": "Get started"
+    }
+  },
+  "stylesPage": {
+    "eyebrow": "Styles",
+    "title": "Styles menu",
+    "description": "Browse our full menu of cuts and styles—filter by who it's for, see pricing at a glance, and walk in knowing exactly what to ask for."
+  },
+  "stylesCatalog": {
+    "filterAll": "All",
+    "filterMen": "Men",
+    "filterWomen": "Women",
+    "filterKids": "Kids",
+    "ariaCategories": "Style categories",
+    "errorLoad": "Could not load styles.",
+    "errorUnknown": "Unknown error",
+    "emptySeed": "No styles yet. Seed the catalog in Postgres or run the server migration SQL.",
+    "emptyCategory": "No styles in this category.",
+    "imagePlaceholder": "Image coming soon",
+    "bookThisStyle": "Book this style"
+  },
+  "bookingsPage": {
+    "reminderNote": "We can send SMS and email reminders before your visit and a thank-you with receipt details afterward, using the phone and email on your account."
+  },
+  "adminSettings": {
+    "title": "Site settings",
+    "subtitle": "Theme, notification toggles, and locale (Twilio and SendGrid keys stay in server env).",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "businessName": "Business name",
+    "address": "Address line",
+    "city": "City",
+    "region": "Region / state",
+    "postal": "Postal code",
+    "country": "Country",
+    "phone": "Phone",
+    "email": "Public email",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "openingHours": "Opening hours (one per line)",
+    "bookingTimeZone": "Booking timezone (IANA)",
+    "bookingHours": "Booking slot hours (JSON)",
+    "defaultLocale": "Default locale",
+    "smsOnBooking": "Send SMS on new booking",
+    "emailOnBooking": "Send email on new booking",
+    "notifySectionBooking": "New booking (shop)",
+    "notifySectionReminders": "Customer reminders (1h and 15m before)",
+    "notifySectionThankYou": "After visit (thank-you and receipt summary)",
+    "smsReminders": "SMS reminders for customers",
+    "emailReminders": "Email reminders for customers",
+    "smsThankYou": "SMS thank-you after completed visit",
+    "emailThankYou": "Email thank-you / receipt after completed visit",
+    "theme": "Brand colors (hex)"
+  }
+}

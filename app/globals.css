@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --color-brand-brown: #000000;
+  --color-brand-cream: #f5f5f5;
+  --color-brand-orange: #1a1a1a;
+  --color-brand-white: #ffffff;
+  --color-background: #ffffff;
+  --color-foreground: #000000;
+  --color-primary: #000000;
+  --color-muted: #737373;
+  --color-card: #ffffff;
+  --color-border: #e5e5e5;
+  --header-height: 4rem;
+}
+
+html {
+  scroll-padding-top: var(--header-height);
+  scroll-snap-type: y mandatory;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-snap-type: none;
+  }
+}
+
+@layer utilities {
+  .min-h-screen-below-header {
+    min-height: calc(100vh - var(--header-height));
+  }
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+}
+
+@layer components {
+  .skip-link {
+    @apply sr-only;
+  }
+  .skip-link:focus {
+    position: fixed;
+    left: 1rem;
+    top: 1rem;
+    z-index: 100;
+    clip: auto;
+    height: auto;
+    width: auto;
+    overflow: visible;
+    white-space: normal;
+    @apply rounded-md bg-primary px-4 py-2 text-sm font-semibold text-brand-white shadow-md;
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
