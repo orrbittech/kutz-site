@@ -11,12 +11,14 @@ function isAppLocale(locale: string): locale is AppLocale {
 type PageMetaTitleKey =
   | 'stylesTitle'
   | 'bookingsTitle'
+  | 'appointmentsTitle'
   | 'accountTitle'
   | 'ordersTitle';
 
 type PageMetaDescriptionKey =
   | 'stylesDescription'
   | 'bookingsDescription'
+  | 'appointmentsDescription'
   | 'accountDescription'
   | 'ordersDescription';
 
