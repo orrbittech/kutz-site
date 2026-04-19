@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Urbanist } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -9,12 +8,6 @@ import { ThemeStyleTag } from '@/components/theme-style-tag';
 import { routing, type AppLocale } from '@/i18n/routing';
 import { getSiteSettingsPublic } from '@/lib/server/get-site-settings';
 import { siteUrl } from '@/lib/server/site-url';
-
-const urbanist = Urbanist({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  display: 'swap',
-});
 
 function isAppLocale(locale: string): locale is AppLocale {
   return (routing.locales as readonly string[]).includes(locale);
@@ -102,17 +95,15 @@ export default async function LocaleLayout({
   const t = await getTranslations({ locale, namespace: 'common' });
 
   return (
-    <html lang={locale}>
-      <body className={`${urbanist.variable} font-sans min-h-screen`}>
-        <a href="#main-content" className="skip-link">
-          {t('skipToMain')}
-        </a>
-        <ThemeStyleTag />
-        <LocalBusinessJsonLd />
-        <NextIntlClientProvider messages={messages}>
-          <AppProviders>{children}</AppProviders>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <>
+      <a href="#main-content" className="skip-link">
+        {t('skipToMain')}
+      </a>
+      <ThemeStyleTag />
+      <LocalBusinessJsonLd />
+      <NextIntlClientProvider messages={messages}>
+        <AppProviders>{children}</AppProviders>
+      </NextIntlClientProvider>
+    </>
   );
 }

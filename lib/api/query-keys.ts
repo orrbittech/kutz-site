@@ -2,8 +2,6 @@ import type { QueryClient } from '@tanstack/react-query';
 
 export const queryKeys = {
   styles: ['styles'] as const,
-  teamMembers: ['team-members'] as const,
-  gallerySlides: ['gallery-slides'] as const,
   bookings: ['bookings'] as const,
   /** Prefix for TanStack Query invalidation (all occupancy queries). */
   bookingsOccupancyPrefix: ['bookings', 'occupancy'] as const,

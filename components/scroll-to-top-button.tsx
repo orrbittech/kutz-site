@@ -1,31 +1,44 @@
 'use client';
 
 import { ChevronUp } from 'lucide-react';
-import { motion, useMotionValueEvent, useReducedMotion, useScroll } from 'motion/react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const SHOW_AFTER_PX = 400;
 
+function usePrefersReducedMotion(): boolean {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduce(mq.matches);
+    const fn = (): void => setReduce(mq.matches);
+    mq.addEventListener('change', fn);
+    return () => mq.removeEventListener('change', fn);
+  }, []);
+  return reduce;
+}
+
 export function ScrollToTopButton(): React.JSX.Element {
-  const { scrollY } = useScroll();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const [visible, setVisible] = useState(false);
 
-  useMotionValueEvent(scrollY, 'change', (y) => {
-    setVisible(y > SHOW_AFTER_PX);
-  });
+  useEffect(() => {
+    const onScroll = (): void => {
+      setVisible(window.scrollY > SHOW_AFTER_PX);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const scrollTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
   }, [reduceMotion]);
 
   return (
-    <motion.div
-      className="pointer-events-none fixed bottom-6 right-4 z-50 md:bottom-8 md:right-6"
-      initial={false}
-      animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 12 }}
-      transition={reduceMotion ? { duration: 0 } : { duration: 0.25 }}
-      style={{ pointerEvents: visible ? 'auto' : 'none' }}
+    <div
+      className={`fixed bottom-6 right-4 z-50 transition-[opacity,transform] duration-200 md:bottom-8 md:right-6 ${
+        visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'
+      }`}
     >
       <button
         type="button"
@@ -35,6 +48,6 @@ export function ScrollToTopButton(): React.JSX.Element {
       >
         <ChevronUp className="h-6 w-6" aria-hidden />
       </button>
-    </motion.div>
+    </div>
   );
 }

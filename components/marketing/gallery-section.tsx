@@ -1,46 +1,21 @@
-'use client';
-
-import { useQuery } from '@tanstack/react-query';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { Card } from '@/components/ui/card';
-import { queryKeys } from '@/lib/api/query-keys';
-import { publicFetch } from '@/lib/api/public-fetch';
-import { gallerySlideListSchema } from '@/lib/zod/gallery-slide';
-import { GalleryCarousel } from './gallery-carousel';
+import { GalleryCarousel } from '@/components/marketing/gallery-carousel';
+import { getGallerySlidesPublic } from '@/lib/server/get-marketing-public';
 
-export function GallerySection(): React.JSX.Element {
-  const t = useTranslations('home.gallery');
+export async function GallerySection(): Promise<React.JSX.Element> {
+  const t = await getTranslations('home.gallery');
+  const result = await getGallerySlidesPublic();
 
-  const query = useQuery({
-    queryKey: queryKeys.gallerySlides,
-    queryFn: async () => {
-      const raw = await publicFetch<unknown>('/gallery-slides');
-      return gallerySlideListSchema.parse(raw);
-    },
-  });
-
-  if (query.isPending) {
-    return (
-      <div className="mt-10 w-full min-w-0" aria-busy="true">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="relative aspect-[4/3] animate-pulse overflow-hidden rounded-lg border border-border bg-brand-cream/60" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (query.isError) {
+  if (!result.ok) {
     return (
       <Card className="mx-auto mt-10 max-w-md border-red-200 bg-red-50 text-sm text-red-900">
-        {t('loadError')}{' '}
-        {query.error instanceof Error ? query.error.message : t('errorUnknown')}
+        {t('loadError')} {t('errorUnknown')}
       </Card>
     );
   }
 
-  const items = query.data ?? [];
+  const items = result.data;
   if (items.length === 0) {
     return (
       <Card className="mx-auto mt-10 max-w-md text-sm text-foreground/80">
