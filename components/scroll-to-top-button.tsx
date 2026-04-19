@@ -36,7 +36,7 @@ export function ScrollToTopButton(): React.JSX.Element {
 
   return (
     <div
-      className={`fixed bottom-6 right-4 z-50 transition-[opacity,transform] duration-200 md:bottom-8 md:right-6 ${
+      className={`fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] right-4 z-50 transition-[opacity,transform] duration-200 md:bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] md:right-6 ${
         visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'
       }`}
     >
