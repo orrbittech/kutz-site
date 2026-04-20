@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,10 @@ import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/api/query-keys';
 import { publicFetch } from '@/lib/api/public-fetch';
+import { STYLE_CATEGORY_ORDER, type StyleCategory } from '@/lib/constants/style-categories';
 import { styleListSchema, type StyleResponse } from '@/lib/zod/style';
 
-type CategoryFilter = 'all' | StyleResponse['category'];
+type CategoryFilter = 'all' | StyleCategory;
 
 const STYLES_STALE_MS = 120_000;
 
@@ -27,24 +28,6 @@ export function StylesView({ initialStyles }: StylesViewProps): React.JSX.Elemen
   const t = useTranslations('stylesCatalog');
   const [category, setCategory] = useState<CategoryFilter>('all');
 
-  const FILTERS = useMemo(
-    () =>
-      [
-        { id: 'all' as const, label: t('filterAll') },
-        { id: 'men' as const, label: t('filterMen') },
-        { id: 'women' as const, label: t('filterWomen') },
-        { id: 'kids' as const, label: t('filterKids') },
-      ] as const,
-    [t],
-  );
-
-  const formatMoney = (cents: number | null): string => {
-    if (cents == null) {
-      return '—';
-    }
-    return new Intl.NumberFormat(locale, { style: 'currency', currency: 'ZAR' }).format(cents / 100);
-  };
-
   const query = useQuery({
     queryKey: queryKeys.styles,
     queryFn: async () => {
@@ -56,6 +39,33 @@ export function StylesView({ initialStyles }: StylesViewProps): React.JSX.Elemen
   });
 
   const items = useMemo(() => query.data ?? [], [query.data]);
+
+  const presentCategories = useMemo(() => {
+    const inData = new Set(items.map((s) => s.category));
+    return STYLE_CATEGORY_ORDER.filter((id) => inData.has(id));
+  }, [items]);
+
+  const filters = useMemo(() => {
+    const rest = presentCategories.map((id) => ({
+      id,
+      label: t(`categoryLabels.${id}` as `categoryLabels.${StyleCategory}`),
+    }));
+    return [{ id: 'all' as const, label: t('filterAll') }, ...rest];
+  }, [t, presentCategories]);
+
+  useEffect(() => {
+    if (category !== 'all' && !presentCategories.includes(category)) {
+      setCategory('all');
+    }
+  }, [category, presentCategories]);
+
+  const formatMoney = (cents: number | null): string => {
+    if (cents == null) {
+      return '—';
+    }
+    return new Intl.NumberFormat(locale, { style: 'currency', currency: 'ZAR' }).format(cents / 100);
+  };
+
   const visible = useMemo(
     () => (category === 'all' ? items : items.filter((s) => s.category === category)),
     [items, category],
@@ -99,15 +109,19 @@ export function StylesView({ initialStyles }: StylesViewProps): React.JSX.Elemen
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label={t('ariaCategories')}>
-        {FILTERS.map(({ id, label }) => (
+      <div
+        className="flex w-full min-w-0 flex-nowrap gap-2 overflow-x-auto overflow-y-hidden overscroll-x-contain pb-1 scroll-smooth [-webkit-overflow-scrolling:touch]"
+        role="tablist"
+        aria-label={t('ariaCategories')}
+      >
+        {filters.map(({ id, label }) => (
           <Button
             key={id}
             type="button"
             role="tab"
             aria-selected={category === id}
             variant={category === id ? 'primary' : 'outline'}
-            className="px-3 py-1.5 text-xs uppercase tracking-wide"
+            className="shrink-0 px-3 py-1.5 text-xs uppercase tracking-wide"
             onClick={() => setCategory(id)}
           >
             {label}

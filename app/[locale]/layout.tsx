@@ -7,6 +7,7 @@ import { LocalBusinessJsonLd } from '@/components/seo/local-business-json-ld';
 import { ThemeStyleTag } from '@/components/theme-style-tag';
 import { routing, type AppLocale } from '@/i18n/routing';
 import { getSiteSettingsPublic } from '@/lib/server/get-site-settings';
+import { getLocalizedMetaSuffix } from '@/lib/server/meta-suffix';
 import { siteUrl } from '@/lib/server/site-url';
 
 function isAppLocale(locale: string): locale is AppLocale {
@@ -32,11 +33,9 @@ export async function generateMetadata({
   }
   const t = await getTranslations({ locale, namespace: 'meta' });
   const s = await getSiteSettingsPublic();
-  const suffix = s.city
-    ? t('suffixCity', { city: s.city, region: s.region ? `, ${s.region}` : '' })
-    : t('suffixEmpty');
-  const title = t('title', { businessName: s.businessName });
-  const description = t('description', { businessName: s.businessName, suffix });
+  const suffix = await getLocalizedMetaSuffix(locale);
+  const title = t('defaultTitle', { businessName: s.businessName });
+  const description = t('defaultDescription', { businessName: s.businessName, suffix });
   const keywords = (t.raw('keywords') as string[]).concat(
     [s.city, s.region, s.businessName].filter((x): x is string => Boolean(x)),
   );

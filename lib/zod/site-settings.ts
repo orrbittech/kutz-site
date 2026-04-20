@@ -93,15 +93,15 @@ export type PatchSiteSettingsInput = z.infer<typeof patchSiteSettingsSchema>;
 
 export const defaultSiteSettingsPublic: SiteSettingsPublic = {
   businessName: 'Kutz',
-  addressLine1: '352 Van Heerden, Halfway Gardens',
-  city: 'Midrand',
-  region: 'Gauteng',
-  postalCode: '1685',
+  addressLine1: '7 Imaginary Crescent, Widget Park',
+  city: 'Samplefield',
+  region: 'Demo Province',
+  postalCode: '0000',
   country: 'ZA',
   phone: '+27 00 000 0000',
   publicEmail: 'hello@example.com',
-  latitude: -25.995,
-  longitude: 28.13,
+  latitude: -33.9249,
+  longitude: 18.4241,
   openingHours: ['Mo-Su 07:00-20:00'],
   bookingTimeZone: 'Africa/Johannesburg',
   bookingHours: {

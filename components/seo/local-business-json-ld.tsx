@@ -4,12 +4,31 @@ import { siteUrl as getSiteOrigin } from '@/lib/server/site-url';
 export async function LocalBusinessJsonLd(): Promise<React.JSX.Element> {
   const s = await getSiteSettingsPublic();
   const url = getSiteOrigin();
+
+  const locality =
+    s.city && s.region
+      ? `${s.city}, ${s.region}`
+      : s.city
+        ? s.city
+        : s.region
+          ? s.region
+          : '';
+
+  const localityPhrase = locality
+    ? ` Serving clients in ${locality}${s.country ? `, ${s.country}` : ''}.`
+    : s.country
+      ? ` Serving ${s.country}.`
+      : '';
+
+  const description = `${s.businessName} is a neighborhood barbershop focused on men's grooming — haircuts, skin fades, lineups, and beard shaping with clear pricing and online booking.${localityPhrase}`;
+
   const payload: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type': 'HairSalon',
+    '@type': ['BarberShop', 'HairSalon'],
     '@id': `${url}/#business`,
     name: s.businessName,
-    description: `Barbershop and men's grooming${s.city ? ` in ${s.city}` : ''}. Book online — your barber in your neighborhood.${s.region ? ` ${s.region}, South Africa.` : ''}`,
+    description,
+    knowsAbout: ["Men's haircut", 'Skin fade', 'Beard trim and shape', 'Lineup', 'Hot towel finish'],
     url,
     telephone: s.phone || undefined,
     email: s.publicEmail || undefined,
