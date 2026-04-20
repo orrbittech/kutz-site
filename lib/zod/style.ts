@@ -1,6 +1,7 @@
 import { z } from 'zod';
+import { STYLE_CATEGORIES } from '@/lib/constants/style-categories';
 
-export const styleCategorySchema = z.enum(['men', 'women', 'kids']);
+export const styleCategorySchema = z.enum(STYLE_CATEGORIES);
 
 export const styleResponseSchema = z.object({
   id: z.string().uuid(),
@@ -10,7 +11,7 @@ export const styleResponseSchema = z.object({
   sortOrder: z.number().int(),
   isActive: z.boolean(),
   priceCents: z.number().int().nullable(),
-  durationMinutes: z.number().int().nullable().optional(),
+  durationMinutes: z.number().int().nullable(),
   category: styleCategorySchema,
   createdAt: z.string(),
   updatedAt: z.string(),
