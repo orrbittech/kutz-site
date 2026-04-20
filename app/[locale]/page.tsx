@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -8,12 +9,9 @@ import { ServicesAccordion } from '@/components/marketing/services-accordion';
 import { TeamSection } from '@/components/marketing/team-section';
 import { AppChrome } from '@/components/app-chrome';
 import { Reveal } from '@/components/reveal';
+import { CONTACT_BG, HERO_BG } from '@/lib/marketing/hero-assets';
+import { getHomePageMetadata } from '@/lib/server/locale-page-metadata';
 import { getSiteSettingsPublic } from '@/lib/server/get-site-settings';
-
-const HERO_BG =
-  'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1920&q=85';
-const CONTACT_BG =
-  'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=1920&q=85';
 
 const SERVICE_ORDER = [
   { key: 'classicCut' as const, priceCents: 450_00 },
@@ -23,6 +21,14 @@ const SERVICE_ORDER = [
 ];
 
 const sectionSnap = 'snap-start snap-always min-h-screen-below-header flex flex-col justify-center';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  return getHomePageMetadata(params);
+}
 
 export default async function HomePage({
   params,
@@ -49,7 +55,7 @@ export default async function HomePage({
           <section className={`relative ${sectionSnap} overflow-hidden text-white`}>
             <Image
               src={HERO_BG}
-              alt=""
+              alt={t('hero.imageAlt', { businessName: settings.businessName })}
               fill
               priority
               className="object-cover"

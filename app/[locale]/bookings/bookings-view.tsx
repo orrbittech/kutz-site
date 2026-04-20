@@ -396,10 +396,6 @@ export function BookingsView(): React.JSX.Element {
         if (!prev) return [created];
         return [created, ...prev];
       });
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.bookings }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.bookingsOccupancyPrefix }),
-      ]);
 
       const nextSlotIso = findEarliestBookableSlotIso(bookingSchedule, new Date(), 90);
       form.reset(
@@ -408,6 +404,11 @@ export function BookingsView(): React.JSX.Element {
       );
       setStyleLines(urlStyleId ? [{ styleId: urlStyleId, quantity: 1 }] : []);
       setBookingFormResetKey((k) => k + 1);
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.bookings }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.bookingsOccupancyPrefix }),
+      ]);
 
       if (bookingNeedsCardPayment(created)) {
         try {
